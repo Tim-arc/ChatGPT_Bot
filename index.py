@@ -14,6 +14,7 @@ with open("config.yaml", "r") as file:
 TG_BOT_TOKEN = config["TG_BOT_TOKEN"]
 TG_BOT_CHATS = [str(chat) for chat in config["TG_BOT_CHATS"]]
 OPENAI_API_KEY = config["OPENAI_API_KEY"]
+PROMT = config["PROMT"]
 
 # Папка для хранения истории чатов
 HISTORY_DIR = "history"
@@ -63,10 +64,13 @@ def save_history(chat_id, history):
         json.dump(history, file)
 
 
-@bot.message_handler(commands=["start", "help"])
+@bot.message_handler(commands=["start"])
 def send_welcome(message):
     bot.reply_to(message, "Привет! Я ChatGPT бот. Спроси меня что-нибудь!")
 
+@bot.message_handler(commands=["help"])
+def send_welcome(message):
+    bot.reply_to(message, "Доступные команды бота:\n\n/new - очистить историю чата\n/help - список команд\n/start - начать диалог")
 
 @bot.message_handler(commands=["new"])
 def clear_history(message):
@@ -82,7 +86,8 @@ def handle_message(message):
     print(f"Получено сообщение от {message.chat.id}: {message.text}")  # Отладка
     start_typing(message.chat.id)
     try:
-        response = process_text_message(message.text, message.chat.id)
+        procesed_message = PROMT + message.text
+        response = process_text_message(procesed_message, message.chat.id)
     except Exception as e:
         response = f"Ошибка: {e}"
     stop_typing()
