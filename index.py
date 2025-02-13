@@ -86,7 +86,7 @@ def handle_message(message):
     except Exception as e:
         response = f"Ошибка: {e}"
     stop_typing()
-    bot.reply_to(message, response)
+    bot.reply_to(message, response, parse_mode="Markdown")
 
 
 def process_text_message(text, chat_id) -> str:
