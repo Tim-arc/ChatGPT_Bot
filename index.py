@@ -21,9 +21,7 @@ HISTORY_DIR = "history"
 os.makedirs(HISTORY_DIR, exist_ok=True)
 
 # Логирование
-logging.basicConfig(level=logging.INFO)
-logger = telebot.logger
-telebot.logger.setLevel(logging.INFO)
+logging.basicConfig(filename="log.out", level=logging.INFO, format="%(asctime)s - %(message)s")
 
 # Инициализация бота и OpenAI API
 bot = telebot.TeleBot(TG_BOT_TOKEN, threaded=False)
@@ -67,15 +65,18 @@ def save_history(chat_id, history):
 @bot.message_handler(commands=["start"])
 def send_welcome(message):
     bot.reply_to(message, "Привет! Я ChatGPT бот. Спроси меня что-нибудь!")
+    logging.info(f"User {message.chat.id} started the bot.")
 
 @bot.message_handler(commands=["help"])
 def send_welcome(message):
     bot.reply_to(message, "Доступные команды бота:\n\n/new - очистить историю чата\n/help - список команд\n/start - начать диалог")
+    logging.info(f"User {message.chat.id} ask for help.")
 
 @bot.message_handler(commands=["new"])
 def clear_history(message):
     save_history(message.chat.id, [])
     bot.reply_to(message, "История чата очищена!")
+    logging.info(f"User {message.chat.id} cleared history.")
 
 
 @bot.message_handler(func=lambda message: True, content_types=["text"])
@@ -92,6 +93,7 @@ def handle_message(message):
         response = f"Ошибка: {e}"
     stop_typing()
     bot.reply_to(message, response, parse_mode="Markdown")
+    logging.info(f"User {message.chat.id} asked {message.text}.")
 
 
 def process_text_message(text, chat_id) -> str:
